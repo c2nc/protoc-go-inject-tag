@@ -1,20 +1,28 @@
 package main
 
 import (
-	"flag"
-	"log"
+	"fmt"
+	"github.com/jawher/mow.cli"
+	log "github.com/c2nc/protoc-go-inject-tag/logger"
+	"io/ioutil"
+	"os"
+	"path"
 	"strings"
 )
 
-func main() {
-	var inputFile string
-	var xxxTags string
-	flag.StringVar(&inputFile, "input", "", "path to input file")
-	flag.StringVar(&xxxTags, "XXX_skip", "", "skip tags to inject on XXX fields")
+const (
+	AppName = "protoc-go-inject-tag"
+	AppVer = "1.0.1"
+	AppDescr = "Protobuf custom tags and validation"
+)
 
-	flag.Parse()
+func init() {
+	log.SetLogLevel("debug")
+}
 
+func processFile(inputFile, xxxTags string) {
 	var xxxSkipSlice []string
+
 	if len(xxxTags) > 0 {
 		xxxSkipSlice = strings.Split(xxxTags, ",")
 	}
@@ -29,5 +37,31 @@ func main() {
 	}
 	if err = writeFile(inputFile, areas); err != nil {
 		log.Fatal(err)
+	}
+}
+
+func main() {
+	app := cli.App(AppName, AppDescr)
+	app.Version("V version", fmt.Sprintf("%s v%s", AppName, AppVer))
+
+	var (
+		input = app.StringOpt("I input", ".", "Input directory")
+		xxxTags = app.StringOpt("S skip", "", "skip tags to inject on XXX fields")
+	)
+
+	app.Action = func() {
+		content, err := ioutil.ReadDir(*input)
+		if err != nil { log.Fatalf("Read file error %v", err) }
+
+		for _, f := range content {
+			fpath := path.Join(*input, f.Name())
+			if path.Ext(fpath) == ".go" {
+				processFile(fpath, *xxxTags)
+			}
+		}
+	}
+
+	if err := app.Run(os.Args); err != nil {
+		log.Fatalf("%s error: %v", AppName, err)
 	}
 }

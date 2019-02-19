@@ -1,16 +1,15 @@
 syntax = "proto3";
-
 package pb;
 
 message IP {
-  // @inject_tag: valid:"ip" yaml:"ip" json:"overrided"
+  // @inject_tag: validate:"ip" yaml:"ip" json:"overrided"
   string Address = 1;
 }
 
 message URL {
-  // @inject_tag: valid:"http|https"
+  // @inject_tag: validate:"http|https"
   string scheme = 1;
   string url = 2;
-  // @inject_tag: valid:"nonzero"
+  // @inject_tag: validate:"nonzero"
   int32 port = 3;
 }
