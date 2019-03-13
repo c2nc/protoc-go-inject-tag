@@ -18,3 +18,11 @@ func FileExists(name string) bool {
 	}
 	return true
 }
+
+func EnvOrDefault(key, value string) string {
+	var res string
+	if res = os.Getenv(key); res == "" {
+		return value
+	}
+	return res
+}

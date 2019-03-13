@@ -17,7 +17,7 @@ const (
 )
 
 func init() {
-	log.SetLogLevel("debug")
+	log.SetLogLevel(EnvOrDefault("LOG_LEVEL", "error"))
 }
 
 func processFile(inputFile, xxxTags string) {
